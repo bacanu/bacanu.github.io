@@ -1,0 +1,119 @@
+<html>
+  <head>
+    <meta charSet="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>
+      bacanu's performative writing
+    </title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.png"/>
+    <link rel="stylesheet" type="text/css" href="/style/style.css"/>
+  </head>
+  <body>
+    <div id="header_wrap" class="outer">
+      <header class="inner">
+        <h1 id="project_title">
+          <a href="/">
+            Disheveled thoughts about disparate subjects
+          </a>
+        </h1>
+      </header>
+    </div>
+    <div id="main_content_wrap">
+      <section id="main_content" class="inner">
+        <div class="">
+          <article class="">
+            <h1>
+              <a href="/posts/godot-good-bad-ugly.html">
+                The good, the bad and the ugly of developing a game with Godot 3.2
+              </a>
+            </h1>
+            <div>
+              published on 2020-05-13
+            </div>
+            <div class="">
+              <h2 id="abstract">Abstract</h2>
+<p>Creativity springs from the idle mind, and my mind was plenty idle during the lockdown. I've put my idle mind to work on one of my &quot;bucket list&quot; items: build a game. I have experience in programming and have previously dabbled in game development but I never actually made a game. This was my 2nd attempt with Godot specifically and the reason I chose Godot again was its ability to export to &quot;web&quot; without the need to write code in javascript. Instead of javascript Godot uses gdscript or C# (the two official options). I chose gdscript because I consider C# too verbose. The overall experience was a bit bumpy, but the bumps will probably be smoothed out in future patches, so, for now, I'd recommend waiting at least for the 4.0 version of Godot.</p>
+<h2 id="intro">Intro</h2>
+<p>I started with a simple &quot;game&quot; plan: A &quot;breakout&quot; style game with user-generated levels and a time-based scoring system. I would need to build and rebuild levels programmatically and communicate with a server to store/retrieve levels, record times, and list highscores. The game needed to be &quot;released&quot; on the web because nobody likes downloading random .exe files.</p>
+<p>I encountered issues with the programmatic approach to level building, json serialization and deserialization, server communication, and web exports.</p>
+<h2 id="the-good">The good</h2>
+<p>I would say that the good parts of Godot are:</p>
+<ol>
+<li>The editor and its &quot;Node hierarchies&quot; approach. (with some caveats)</li>
+<li>Export almost anywhere (with some caveats)</li>
+<li>Open-source and free; if something is missing, you can add it.</li>
+</ol>
+<p>The editor seems to be optimized for Node hierarchies manipulation. It might seem clunky at first if you've tried other game engines/editors, but once you &quot;grok&quot; it, it becomes liberating. It's a bit like writing html. Most of the time Nodes are standalone and can be moved up and down the branches and even across them. You can also change their type.</p>
+<p>If you decide you want to reuse a portion of your tree (called a scene in Godot) you can create a new scene from just that part and import it and use it as a Node. Essentially a refactor. Most IDEs don't have refactoring this smooth.</p>
+<p>If you do some &quot;illegal&quot; stuff, the editor will display a warning but it has kind of a &quot;laissez-faire&quot; approach to how you arrange your stuff.</p>
+<p>The editor also has a built-in code editor with code completions and a pretty decent debugger, but it does get a bit cramped if you have a small monitor.</p>
+<p>Godot also has a very good UI build system with layouts and anchor points. It also has theming options for you UI, similar to a CSS file, but it doesn't have a way (or at least I didn't find one) to add sounds to UI elements. It could be done by extending base classes but I found decided not to bother with it.</p>
+<h2 id="the-bad">The bad</h2>
+<p>I don't have a lot of experience with designing game systems or working with the &quot;loop&quot; but I do have experience with the model-view-update paradigm (see elm and react/redux), which are quite similar in theory but it turns out this is not the case in practice.</p>
+<p>If you're unfamiliar with the basic game &quot;loop&quot;, I'd explain it so: the game has a &quot;state&quot; which is updated when something happens (an event or just time passing) and then the state is &quot;drawn&quot; onto the screen.</p>
+<p>The state contains everything: from coordinates of objects, to which achievements you've earned. So I thought that I only needed to modify the state and the engine will handle it, which is true, BUT modifying the state is not that easy. The state is spread out across different objects (gdscript is mostly OO) or more accurately each object has its own state, and it feels like herding a bunch of cats. Amusing only from seen from the outside.</p>
+<p>The cats/object in Godot are called Nodes. Everything you see (or don't see) on a screen is a Node. Everything inherits from a node. You build hierarchies of nodes. It's nodes all the way down.</p>
+<p>This approach is great if you are building static levels (e.g Mario levels), amazing even. But if you want to build levels programmatically, it's only ok-ish.</p>
+<p>The problems arise when you try to communicate between these nodes a.k.a herding the cats. There are many solutions, most of which I don't know about so I settled on what I'm familiar with: pub/sub through a singleton. I'd rate this solution as only ok-meh.
+Each node subscribes to updates to the global state and any node can emit any global event as long as it's allowed by the singleton.
+Each node decides what to do if (if anything) when the state updates but most of the time if the state changes drastically I just free/delete the whole scene and rebuild it from the new state.</p>
+<p>Godot does offer pretty good tools for message passing from Leaf Nodes to the Root but if you're building your tree programmatically (as was the case for me) wiring up the events becomes error-prone.
+Because registering the events is done like so:
+<code>senderNode.connect(&quot;event&quot;, receiver, &quot;listenerMethodOnReceiver&quot;)</code><br />
+It's clunky but it's the only way to do it because there gdscript doesn't have anonymous functions or any other way to declare adhoc callbacks.</p>
+<p>Async operations are also a PITA. Making an http request goes something like this:</p>
+<pre><code>var client = new Http();
+client.connect(&quot;request_completed&quot;, self, &quot;request_completed_listener&quot;) 
+
+func request_completed_listener(response):    
+	doSomethingWithResponse(response)
+</code></pre>
+<p>Each client handles on request at a time and there is no way to check if the request is &quot;in progress&quot; and you can't really reuse listeners because then you don't know which request actually completed. You can hack together a queue system or pass in identifiers but it feels like fighting against the language.</p>
+<p>There are whispers of anonymous functions in Godot 4.0 which is very encouraging. And there is also support for C# (if you don't plan to export to web) so I guess I'm complaining for naught. And you don't even need to write the entire project in C# only the bits you need.</p>
+<p>My game has user-created levels, with a level creator. When a player saves their creation, I serialize it to json and send it to an http endpoint.</p>
+<p>I've used a dictionary with Vector2 as keys. Vector2's are encoded as <code>(x, y)</code> but decoded as strings. I would have liked for an exception to be thrown when attempting to encode something that can't be decoded so I would know not to do it. Maybe I should only use simple types as keys. Or maybe gdscript should throw an exception because it can't really serialize some types instead of running to_string on it.</p>
+<p>The debugger doesn't show types in any obvious way, but types are kind of important, especially when they only sometimes aren't.</p>
+<p>The &quot;UI&quot; builder in Godot is surprisingly good but the UI controls have some issues: If you export the game to &quot;web&quot; and the text input fields don't work and some sketchy js calls to <code>window.prompt()</code> are needed to actually get user text input.</p>
+<h2 id="the-ugly">The ugly</h2>
+<p>Extending classes seems straightforward, but sometimes the compiler complains that a property on the parent isn't declared when you try to modify it from the child. But if you try to declare it on the child it says that it's already declared which is confusing.</p>
+<p>The editor gets kind of claustrophobic on small screens and the code editor navigation is non-intuitive. You have tabs at the top but those are for the scenes. You have a list on the side which is actually your script navigation.</p>
+<p>But you have built-in documentation/api reference which is nice, especially when doing a google search is a bit hit and miss. I frequently get results for an older version or wrong languages (sometimes I get doc pages in Japanese). But it auto-switches back to the browser language and if you end up on docs for an older version there is a warning at the top of the page warning you that you are viewing older documentation with a link to the current docs.</p>
+<p>##The soundtrack</p>
+<p>Game programming requires a fair bit of state manipulation and the best tool for state manipulation is the match statement. Which gdscript has and it is probably its best feature. It even has the ignore (_) thingy (don't know the technical term).</p>
+<p>I don't know how it got in, but I'm glad it's there.
+Some tuples would've been nice but I can do basically the same thing with arrays.
+Discriminated unions? Enums.</p>
+<p>In my main scene I have something like this:</p>
+<pre><code>match state.screen:
+    [SCREEN.MAIN_MENU]:
+        doSomething()
+    [SCREEN.PLAY_LEVEL, var level]:
+        playLevel(level)
+</code></pre>
+<p>It. Is. Delightful.</p>
+<p>I consider match statements with destructuring (which gdscript also has) to be the secret weapons of functional languages. Is their presence in gdscript an accident?</p>
+<p>Will gdscript be improved with more &quot;functional&quot; features? Immutability, actual tuples, functions as first class citizens.
+Godot is open source and C# is a supported language, which runs on .net. Another language that runs on .net is F# which is functional. Does this mean that there is a chance of Godot + F#? A dream team? [A quick google search at the time of writing this tells me that F# can be used but it is not officially supported.]</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>There are a lot of good things about Godot and probably I didn't notice most of them because I don't have a comparison.</p>
+<p>There are a lot of bad things. And there are some ugly things. And these issues are known. There are 5000+ open issues on Github and there are only 3(?) people working on it full time. There is a lot of room for progress and it will happen, but it won't happen too fast.</p>
+<p>I did finish a game. My first game. Of at least 10 started (and abandoned). It took me about 50 days. It has bad graphics, bad sound design, passable gameplay, and lots of bugs. But it is done and I'd say it was thanks to using Godot and not in spite of it. Godot gave me enough initial development velocity to rocket myself out of the dreaded &quot;trough of disillusionment&quot; and for that I am thankful.</p>
+<p>Development was not a joyous experience on average but it wasn't awful either. Yes, Godot has rough spots but solutions exist (using C#, maybe F#) and in a way I'm the only one responsible for the mental anguish I went through.</p>
+<p>Would I recommend Godot + gdscript? Not right now, wait for Godot 4.0.</p>
+<p>Would I recommend Godot + C#? Assuming that C# solves the issues I have with gdscript AND you are comfortable with C# than YES. I'd recommend it 100%. Unless you want to publish for the web which you can't do if you use C#.</p>
+<p>My next game development project (if any) will be still with Godot. I hope this is not some Stockholm syndrome induced statement and I hope that F# is a scripting option (even unofficial) and everything works out better and I can write another article in which I profess my undying love for the Godot + F# dream team. Maybe.</p>
+
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">
+          Generated with  <a href="https://ionide.io/Tools/fornax.html" >Ionide/Fornax</a>.
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>
