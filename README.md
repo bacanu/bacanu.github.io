@@ -4,3 +4,5 @@
 `fornax clean` - removes output directory and any temp files
 `fornax version` - prints out the currently-installed version of Fornax
 `fornax help` - prints out help
+
+`cp -r _public/* ../bacanu.github.io/`
