@@ -23,6 +23,54 @@
         <div class="">
           <article class="">
             <h1>
+              <a href="/posts/tooling-laravel-to-netcore.html">
+                Tooling: Switching from Laravel to ASP.NET Core MVC
+              </a>
+            </h1>
+            <div>
+              published on 2020-06-09
+            </div>
+            <div class="">
+              <p>This is part 1 of a series of posts intended to help you (or future me) to switch from Laravel to ASP.NET Core MVC.</p>
+<h2 id="ide-phpstorm-rider">IDE: PhpStorm =&gt; Rider</h2>
+<p>The &quot;proper&quot; way to do C# development is to use Visual Studio on Windows. But if you were a Laravel developer you are using PhpStorm on Linux/Windows/Whatever. If you like PhpStorm, you will be happy to learn that there is an IDE made by the same company: Rider. You don't have to relearn shortcuts, you can have the same themes, the same features and more.</p>
+<h2 id="cli-php-artisan-dotnet">CLI: php artisan =&gt; dotnet</h2>
+<p>Next is the CLI tool. For Laravel you have <code>php artisan</code> and maybe <code>composer</code>. For .NET Core you have <code>dotnet</code> which you can install on your operating system from here: <a href="https://dotnet.microsoft.com/download"></a></p>
+<p>Next you need to create an app. For Laravel you would do &quot;laravel new myapp&quot; or &quot;composer create-project --prefer-dist laravel/laravel myapp&quot;.
+For .NET Core you need to run <code>dotnet new mvc -o MyApp</code> or better yet follow the instructions here <a href="https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/start-mvc?view=aspnetcore-3.1&amp;tabs=visual-studio-code#create-a-web-app"></a></p>
+<h2 id="serve-php-artisan-serve-dotnet-watch-run">Serve: php artisan serve =&gt; dotnet watch run</h2>
+<p>Next you need to run the app. For Laravel you can do <code>php artisan serve</code> to start the built in server.
+For .NET Core you cand do <code>dotnet run</code> from inside the project folder, but this will require you to <code>Ctrl+C</code> cancel the process and re-start it if you want to see your changes. If you do not want to manually stop-start <code>dotnet run</code> every time you make a change, you can instead use <code>dotnet watch run</code> whic# Tooling: Switching from Laravel to ASP.NET Core MVC</p>
+<p>This is part 1 of a series of blog posts intended to help you (or future me) to transition from Laravel to ASP.NET Core MVC.</p>
+<h2 id="ide-phpstorm-rider-1">IDE: PhpStorm =&gt; Rider</h2>
+<p>The &quot;proper&quot; way to do C# development is to use Visual Studio on Windows. But if you were a Laravel developer you are using PhpStorm on Linux/Windows/Whatever. If you like PhpStorm, you will be happy to learn that there is an IDE made by the same company: Rider. You don't have to relearn shortcuts, you can have the same themes, the same features and more.</p>
+<p>So, for and IDE, use Jetbrains Rider.</p>
+<h2 id="cli-php-artisan-dotnet-1">CLI: php artisan =&gt; dotnet</h2>
+<p>Next is the CLI tool. For Laravel you have <code>php artisan</code> and maybe <code>composer</code>. For .NET Core you have <code>dotnet</code> which you can install on your operating system from here: <a href="https://dotnet.microsoft.com/download"></a></p>
+<p>Next you need to create an app. For Laravel you would do &quot;laravel new myapp&quot; or &quot;composer create-project --prefer-dist laravel/laravel myapp&quot;.
+For .NET Core you need to run <code>dotnet new mvc -o MyApp</code> or better yet follow the instructions here <a href="https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/start-mvc?view=aspnetcore-3.1&amp;tabs=visual-studio-code#create-a-web-app"></a></p>
+<h2 id="serve-php-artisan-serve-dotnet-watch-run-1">Serve: php artisan serve =&gt; dotnet watch run</h2>
+<p>Next you need to run the app. For Laravel you can do <code>php artisan serve</code> to start the built in server.
+For .NET Core you cand do <code>dotnet run</code> from inside the project folder, but this will require you to <code>Ctrl+C</code> cancel the process and re-start it if you want to see your changes. If you do not want to manually stop-start <code>dotnet run</code> every time you make a change, you can instead use <code>dotnet watch run</code> which tells dotnet to watch for changes and execute run when changes are detected. Similarly you can use <code>dotnet watch test</code> to automatically run your tests or you can use <code>dotnet watch</code> for any dotnet task that you want re-run on changes.</p>
+<h2 id="package-manager-composer-nuget">Package manager: composer =&gt; nuget</h2>
+<p>Let's say you want to add a package. For Laravel you would use <code>composer</code> which updates <code>composer.json</code> allowing you to later <code>composer install</code> to install all your packages.
+For .NET Core you have <a href="https://www.nuget.org/"><code>nuget</code></a> which updates <code>MyApp.csproj</code> and you can install all your packages using <code>dotnet restore</code>. A dotnet package install looks like this <code>dotnet add package Pomelo.EntityFrameworkCore.MySql</code> and you can find the installation commands on the nuget page of each package.</p>
+<h2 id="extra-tooling-debugger">Extra tooling: Debugger</h2>
+<p>Some people say that the .NET debugger is the best there is. I don't know if that's true, but it is a very useful feature. You set your breakpoints, start the app in debug mode (<code>Shift + F9</code> in Rider) and when you reach a breakpoint you can inspect the variables for that request. No more <code>dd()</code>s sprinkled everywhere.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>.NET Core has almost all the tooling you are used to from php/Laravel and more making the switch from Laravel to .NET Core quite easy, at least in terms of tooling.h tells dotnet to watch for changes and execute run when changes are detected. Similarly you can use <code>dotnet watch test</code> to automatically run your tests or you can use <code>dotnet watch</code> for any dotnet task that you want re-run on changes.</p>
+<h2 id="package-manager-composer-nuget-1">Package manager: composer =&gt; nuget</h2>
+<p>Let's say you want to add a package. For Laravel you would use <code>composer</code> which updates <code>composer.json</code> allowing you to later <code>composer install</code> to install all your packages.
+For .NET Core you have <a href="https://www.nuget.org/"><code>nuget</code></a> which updates <code>MyApp.csproj</code> and you can install all your packages using <code>dotnet restore</code>. A dotnet package install looks like this <code>dotnet add package Pomelo.EntityFrameworkCore.MySql</code> and you can find the installation commands on the nuget page of each package.</p>
+<h2 id="extra-tooling-debugger-1">Extra tooling: Debugger</h2>
+<p>Some people say that the .NET debugger is the best there is. I don't know if that's true, but it is a very useful feature. You set your breakpoints, start the app in debug mode (<code>Shift + F9</code> in Rider) and when you reach a breakpoint you can inspect the variables for that request. No more <code>dd()</code>s sprinkled everywhere.</p>
+<h2 id="conclusion-1">Conclusion</h2>
+<p>.NET Core has almost all the tooling you are used to from php/Laravel and more making the switch from Laravel to .NET Core quite easy, at least in terms of tooling.</p>
+
+            </div>
+          </article>
+          <article class="">
+            <h1>
               <a href="/posts/godot-good-bad-ugly.html">
                 The good, the bad and the ugly of developing a game with Godot 3.2
               </a>
