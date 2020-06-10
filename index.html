@@ -23,6 +23,78 @@
         <div class="">
           <article class="">
             <h1>
+              <a href="/posts/hello-world-laravel-to-netcore.html">
+                Hello World: Switching from Laravel to ASP.NET Core MVC
+              </a>
+            </h1>
+            <div>
+              published on 2020-06-10
+            </div>
+            <div class="">
+              <p>This is part 2 of a series of blog posts intended to help you (or future me) to transition from Laravel to ASP.NET Core MVC.</p>
+<h2 id="intro">Intro</h2>
+<p>This &quot;Hello World&quot; is made with a controller, a view and routing. This post compares the process of creating a controller with a method, a view and declaring the route for Laravel and ASP.NET Core MVC 3.1</p>
+<h2 id="project-structure">Project structure</h2>
+<p>In Laravel, controllers are placed by default in <code>/app/Http/Controllers</code>. Views are placed in <code>/resources/views</code> and generally have the <code>.blade.php</code> extension.<br />
+In .NET Core, controllers are placed by default in <code>/Controllers</code>. Views are placed in <code>/Views/{ControllerName}</code> and have the <code>.cshtml</code> extension.</p>
+<p>Routes in Laravel are defined in files inside /routes.<br />
+Routes in .NET Core can be defined in Startup.cs &gt; Configure &gt; app.UseEndpoints &gt; endpoints options BUT you shouldn't. Instead you should use the defaults or use a route attribute on the controller method.</p>
+<h2 id="creating-the-controller">Creating the controller</h2>
+<p>In Laravel you create a class that ends in <code>*Controller.php</code>, ex <code>HelloController.php</code> and put it inside <code>/app/Http/Controllers</code>. The controller must extend <code>App\Controller</code>.<br />
+In .NET Core you create a class that ends in <code>*Controller.cs</code>, ex <code>HelloController.cs</code> and put it inside <code>/Controllers</code>. The controller must inherit from <code>Controller</code>.<br />
+The start of you controller should look like this:</p>
+<pre><code>namespace MyApp.Controllers
+{
+    public class HelloController : Controller
+    {
+        public HelloController()
+        {
+        }
+</code></pre>
+<p>where <code>: Controller</code> is the inheritance syntax in C# (equivalent to <code>extends Controller</code> in php).</p>
+<h2 id="creating-the-controller-with-a-code-generator">Creating the controller with a code generator</h2>
+<p>Laravel has <code>php artisan make:controller HelloController</code> which generates a Controller file for you in the correct location, ready to be used.
+In .NET Core, you don't have this option out of the box for the <code>dotnet</code> CLI.<br />
+<em>Note: If you are using Visual Studio, you have a great scaffolding system, allowing you to generate everything you need</em>
+<em>Note 2: If you are using Rider, you can create a simple controller by right-clicking the <code>/Controllers</code> folder and selecting Add &gt; Controller, which will generate a simple controller</em></p>
+<p>If you want to scaffold controller and more from the CLI, you will need to install a dotnet tool: <a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/tools/dotnet-aspnet-codegenerator?view=aspnetcore-3.1"><code>dotnet aspnet-codegenerator</code></a> and use something like <code>dotnet-aspnet-codegenerator controller -name HelloController -nv -outDir Controllers</code> to generate a controller.</p>
+<h2 id="creating-a-controller-method">Creating a controller method</h2>
+<p>In Laravel, you add a public function that returns a response, something that can be transformed into a response or nothing.</p>
+<pre><code>public function index() {
+    return &quot;hello world&quot;;
+}
+</code></pre>
+<p>In .NET Core, you add a public method that returns an <code>IActionResult</code></p>
+<pre><code>public IActionResult Index()
+{
+    return &quot;hello world&quot;;
+}
+</code></pre>
+<p>Notice the capitalization of Index. This is the C# convention.</p>
+<p>You now have a pretty basic &quot;hello world&quot; in .NET Core.</p>
+<h2 id="adding-a-view">Adding a view</h2>
+<p>In Laravel you would create a file <code>index.blade.php</code> inside <code>/resources/views/hello</code> (but you could place it anywhere inside the views folder) and in the controller's <code>index</code> method you would <code>return view(&quot;hello.index&quot;);</code></p>
+<p>In .NET Core, it's recommended you follow the convention: The view name is named the same as the method name (including capitalization), in this case <code>Index.cshtml</code> and placed inside <code>/Views/{ControllerName}</code> so your views would pe placed at <code>/Views/Hello/Index.cshtml</code> and in the controller's method you would <code>return View();</code>. Notice that because you used the view file placing convention, you don't need to specify the path or name of the view.</p>
+<p>But can you specify a view path/name? Yes, using <code>View(&quot;../Goodbye/Index&quot;)</code> you can reuse a view from a different directory (the base one is <code>/Views/{ControllerName}</code>) or you can use <code>View(&quot;Edit&quot;)</code> to reuse a view from the same directory.</p>
+<h2 id="routing">Routing</h2>
+<p>In Laravel you need to add a route inside one of the route file, in this case <code>/routes/web.php</code> and it would look something like this: <code>Route::get(&quot;/hello&quot;, &quot;HelloController@index&quot;)-&gt;name(&quot;hello.index&quot;)</code></p>
+<p>In .NET Core, you have a default routing schema already in place (check the <code>/Startup.cs</code> file) and you can access the &quot;hello world&quot; page by going to <code>/Hello</code> or <code>/Hello/Index</code> where the first segment is the name of the controller and the second is the name of the method. .NET Core calls this &quot;Conventional Routing&quot;</p>
+<p>But, can you define a custom url? Yes. You could modify <code>/Startup.cs</code> or you can use the <code>[Route]</code> attribute. To change the url to <code>/hello-there</code> you would change the method to look like this:</p>
+<pre><code>[HttpGet(&quot;/hello-there&quot;, Name=&quot;Hello_Index&quot;)]
+public IActionResult Index()
+{
+    return View();
+}
+</code></pre>
+<p>The thing that changed was the addition of <code>[HttpGet(&quot;/hello-there&quot;, Name=&quot;Hello_Index&quot;)]</code> attribute above the method declaration. .NET Core calls this &quot;Attribute routing&quot;.</p>
+<p>Here you can find more info about <a href="https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/routing">routing in ASP.NET Core MVC</a>.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>A &quot;hello world&quot; in .NET Core is similar enough to Laravel but .NET Core has some downsides: No code generation out of the box and &quot;attribute routing&quot; seems to be a messy way of declaring routes.</p>
+
+            </div>
+          </article>
+          <article class="">
+            <h1>
               <a href="/posts/tooling-laravel-to-netcore.html">
                 Tooling: Switching from Laravel to ASP.NET Core MVC
               </a>
